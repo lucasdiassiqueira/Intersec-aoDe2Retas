@@ -1,167 +1,92 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Interseção de Duas Retas no Plano</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Roboto:wght@300;500&display=swap" rel="stylesheet">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      font-family: 'Roboto', sans-serif;
-      background: linear-gradient(135deg, #1f1c2c, #928dab);
-      color: white;
-      overflow-x: hidden;
-    }
-    header {
-      padding: 2rem;
-      background: #0f0f0f;
-      text-align: center;
-      box-shadow: 0 0 20px rgba(255,255,255,0.1);
-    }
-    header h1 {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 3rem;
-      color: #feda6a;
-    }
-    .content {
-      padding: 3rem 5%;
-      display: grid;
-      gap: 2rem;
-    }
-    .card {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 20px;
-      padding: 2rem;
-      box-shadow: 0 0 30px rgba(255,255,255,0.2);
-      backdrop-filter: blur(10px);
-      transition: transform 0.3s ease;
-    }
-    .card:hover {
-      transform: scale(1.03);
-    }
-    h2 {
-      color: #00ffe5;
-      font-size: 2rem;
-      margin-bottom: 1rem;
-    }
-    p {
-      line-height: 1.7;
-      font-size: 1.1rem;
-    }
-    canvas {
-      width: 100%;
-      max-width: 600px;
-      margin: 2rem auto;
-      display: block;
-    }
-    .footer {
-      margin-top: 3rem;
-      padding: 2rem;
-      background: #111;
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-    .footer input {
-      padding: 0.7rem;
-      border: none;
-      border-radius: 10px;
-      width: 100%;
-      max-width: 300px;
-    }
-    .footer label {
-      font-weight: bold;
-    }
-    .footer-section {
-      flex: 1;
-      min-width: 200px;
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculadora de Equações</title>
+  <script src="https://cdn.jsdelivr.net/npm/mathjs@12.4.1/lib/browser/math.min.js"></script>
+  <script src="https://unpkg.com/algebrite"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <header>
-    <h1>Interseção de Duas Retas no Plano</h1>
-  </header>
+<body class="bg-gray-100 p-6">
+  <div class="max-w-4xl mx-auto bg-white p-6 rounded-2xl shadow-lg">
+    <h1 class="text-2xl font-bold text-center mb-6">🧮 Calculadora de Equações com Gráfico</h1>
 
-  <div class="content">
-    <div class="card">
-      <h2>O Que É Interseção?</h2>
-      <p>Quando duas retas se cruzam em um ponto no plano, dizemos que elas possuem uma interseção. Esse ponto é a solução do sistema formado pelas equações das duas retas. Se elas forem paralelas e distintas, não haverá interseção. Se forem coincidentes, têm infinitas interseções.</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <input id="eq1" class="p-3 border rounded-lg w-full" placeholder="Digite a equação 1 (ex: 2x + 3 = 7)" />
+      <input id="eq2" class="p-3 border rounded-lg w-full" placeholder="Digite a equação 2 (opcional)" />
     </div>
 
-    <div class="card">
-      <h2>Como Calcular?</h2>
-      <p>Você pode resolver um sistema de equações do tipo y = m<sub>1</sub>x + b<sub>1</sub> e y = m<sub>2</sub>x + b<sub>2</sub> para encontrar o ponto de interseção. Igualando as equações, resolvemos para x e substituímos em uma das expressões para encontrar y.</p>
-    </div>
+    <button onclick="calcular()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+      Calcular
+    </button>
 
-    <div class="card">
-      <h2>Exemplo</h2>
-      <p>Considere as retas y = 2x + 1 e y = -x + 4. Igualando:<br>
-        <code>2x + 1 = -x + 4</code><br>
-        <code>3x = 3</code> ⇒ <code>x = 1</code><br>
-        Substituindo: <code>y = 2(1) + 1 = 3</code><br>
-        <strong>Ponto de interseção: (1, 3)</strong>
-      </p>
-    </div>
+    <div id="resultado" class="mt-6 text-gray-800"></div>
 
-    <canvas id="grafico"></canvas>
-  </div>
-
-  <div class="footer">
-    <div class="footer-section">
-      <label for="prof">Nome do Professor:</label><br>
-      <input type="text" id="prof" placeholder="Digite aqui...">
-    </div>
-    <div class="footer-section">
-      <label for="escola">Nome da Escola:</label><br>
-      <input type="text" id="escola" placeholder="Digite aqui...">
-    </div>
-    <div class="footer-section">
-      <label for="dxx">DXX:</label><br>
-      <input type="text" id="dxx" placeholder="Digite aqui...">
-    </div>
+    <canvas id="grafico" class="mt-6"></canvas>
   </div>
 
   <script>
-    const canvas = document.getElementById("grafico");
-    const ctx = canvas.getContext("2d");
-    canvas.width = 600;
-    canvas.height = 400;
+    function calcular() {
+      const eq1 = document.getElementById("eq1").value;
+      const eq2 = document.getElementById("eq2").value;
+      const resultadoDiv = document.getElementById("resultado");
+      const ctx = document.getElementById("grafico").getContext("2d");
 
-    function desenharReta(m, b, cor) {
-      ctx.beginPath();
-      ctx.moveTo(0, canvas.height - (m * 0 + b) * 20);
-      ctx.lineTo(canvas.width, canvas.height - (m * (canvas.width / 20) + b) * 20);
-      ctx.strokeStyle = cor;
-      ctx.lineWidth = 2;
-      ctx.stroke();
+      resultadoDiv.innerHTML = "";
+
+      try {
+        let steps = Algebrite.run("solve(" + eq1 + ", x)").toString();
+        resultadoDiv.innerHTML += `<p><strong>Resultado:</strong> ${steps}</p>`;
+        resultadoDiv.innerHTML += `<p class="mt-4"><strong>Passo a passo:</strong></p><pre class="bg-gray-100 p-2 rounded">${Algebrite.run("show(" + eq1 + ")")}</pre>`;
+
+        if (eq2.trim()) {
+          let steps2 = Algebrite.run("solve(" + eq2 + ", x)").toString();
+          resultadoDiv.innerHTML += `<p class="mt-4"><strong>Resultado (equação 2):</strong> ${steps2}</p>`;
+          resultadoDiv.innerHTML += `<pre class="bg-gray-100 p-2 rounded">${Algebrite.run("show(" + eq2 + ")")}</pre>`;
+        }
+
+        // gráfico para equação 1
+        let expr = eq1.split("=")[0]; // pega só o lado esquerdo
+        let f = math.compile(expr);
+        const xValues = math.range(-10, 10, 0.1).toArray();
+        const yValues = xValues.map(x => f.evaluate({ x }));
+
+        if (window.grafico) {
+          window.grafico.destroy();
+        }
+
+        window.grafico = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: xValues,
+            datasets: [{
+              label: `y = ${expr}`,
+              data: yValues,
+              borderColor: "rgba(54, 162, 235, 1)",
+              fill: false,
+            }],
+          },
+          options: {
+            responsive: true,
+            scales: {
+              x: {
+                title: { display: true, text: "x" }
+              },
+              y: {
+                title: { display: true, text: "y" }
+              }
+            }
+          }
+        });
+
+      } catch (error) {
+        resultadoDiv.innerHTML = `<p class="text-red-600">Erro ao calcular: ${error.message}</p>`;
+      }
     }
-
-    function desenharPlano() {
-      ctx.strokeStyle = '#ccc';
-      ctx.lineWidth = 1;
-      // Eixos
-      ctx.beginPath();
-      ctx.moveTo(0, canvas.height / 2);
-      ctx.lineTo(canvas.width, canvas.height / 2);
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.moveTo(canvas.width / 2, 0);
-      ctx.lineTo(canvas.width / 2, canvas.height);
-      ctx.stroke();
-    }
-
-    desenharPlano();
-    desenharReta(2, 1, '#00ffcc'); // y = 2x + 1
-    desenharReta(-1, 4, '#ff00ff'); // y = -x + 4
   </script>
 </body>
 </html>
+
 

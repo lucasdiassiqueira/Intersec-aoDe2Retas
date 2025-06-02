@@ -3,28 +3,56 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Calculadora de Equações</title>
+  <title>Intersecção de Retas</title>
   <script src="https://cdn.jsdelivr.net/npm/mathjs@12.4.1/lib/browser/math.min.js"></script>
-  <script src="https://unpkg.com/algebrite"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 p-6">
-  <div class="max-w-4xl mx-auto bg-white p-6 rounded-2xl shadow-lg">
-    <h1 class="text-2xl font-bold text-center mb-6">🧮 Calculadora de Equações com Gráfico</h1>
+<body class="bg-gray-100">
+  <div class="max-w-5xl mx-auto py-10 px-6">
+    <header class="mb-10 text-center">
+      <h1 class="text-4xl font-bold text-blue-800 mb-2">Intersecção de Duas Retas no Plano</h1>
+      <p class="text-lg text-gray-700">Descubra onde duas equações se encontram usando matemática e visualização gráfica.</p>
+    </header>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-      <input id="eq1" class="p-3 border rounded-lg w-full" placeholder="Digite a equação 1 (ex: 2x + 3 = 7)" />
-      <input id="eq2" class="p-3 border rounded-lg w-full" placeholder="Digite a equação 2 (opcional)" />
-    </div>
+    <section class="bg-white shadow-xl p-6 rounded-xl mb-10">
+      <h2 class="text-2xl font-semibold text-gray-800 mb-4">O que é intersecção de retas?</h2>
+      <p class="text-gray-700 mb-3">A intersecção de duas retas é o ponto exato onde ambas se encontram em um plano cartesiano. Esse ponto satisfaz simultaneamente as duas equações das retas. Em outras palavras, ele é solução de um sistema formado pelas equações das duas retas.</p>
+      <p class="text-gray-700 mb-3">Se as retas forem paralelas e distintas, não haverá intersecção. Se forem coincidentes, haverá infinitos pontos em comum. Caso contrário, haverá um único ponto de encontro.</p>
+    </section>
 
-    <button onclick="calcular()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
-      Calcular
-    </button>
+    <section class="bg-white shadow-xl p-6 rounded-xl mb-10">
+      <h2 class="text-2xl font-semibold text-gray-800 mb-4">Como determinar a intersecção</h2>
+      <ul class="list-disc pl-6 text-gray-700 space-y-2">
+        <li>Transforme ambas as equações para a forma geral ou reduzida (como <code>y = mx + b</code>).</li>
+        <li>Iguale as duas equações: <code>m1x + b1 = m2x + b2</code>.</li>
+        <li>Resolva a equação resultante para encontrar o valor de <code>x</code>.</li>
+        <li>Substitua <code>x</code> em qualquer das equações para encontrar <code>y</code>.</li>
+      </ul>
+    </section>
 
-    <div id="resultado" class="mt-6 text-gray-800"></div>
+    <section class="bg-white shadow-xl p-6 rounded-xl mb-10">
+      <h2 class="text-2xl font-semibold text-gray-800 mb-4">Use a calculadora abaixo!</h2>
+      <p class="text-gray-700 mb-4">Digite as equações das duas retas e visualize o ponto de intersecção:</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <input id="eq1" class="p-3 border rounded-lg w-full" placeholder="Digite a equação 1 (ex: y = 2x + 1)" />
+        <input id="eq2" class="p-3 border rounded-lg w-full" placeholder="Digite a equação 2 (ex: y = -x + 4)" />
+      </div>
+      <button onclick="calcular()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+        Calcular
+      </button>
+      <div id="resultado" class="mt-6 text-gray-800"></div>
+      <canvas id="grafico" class="mt-6"></canvas>
+    </section>
 
-    <canvas id="grafico" class="mt-6"></canvas>
+    <footer class="text-center text-sm text-gray-600 mt-16">
+      <p>Professor: ___________________ | Escola: ___________________ | Data: ____/____/______</p>
+    </footer>
   </div>
 
   <script>
@@ -35,50 +63,57 @@
       const ctx = document.getElementById("grafico").getContext("2d");
 
       resultadoDiv.innerHTML = "";
+      if (window.grafico) {
+        window.grafico.destroy();
+      }
 
       try {
-        let steps = Algebrite.run("solve(" + eq1 + ", x)").toString();
-        resultadoDiv.innerHTML += `<p><strong>Resultado:</strong> ${steps}</p>`;
-        resultadoDiv.innerHTML += `<p class="mt-4"><strong>Passo a passo:</strong></p><pre class="bg-gray-100 p-2 rounded">${Algebrite.run("show(" + eq1 + ")")}</pre>`;
+        const expr1 = math.parse(eq1);
+        const expr2 = math.parse(eq2);
 
-        if (eq2.trim()) {
-          let steps2 = Algebrite.run("solve(" + eq2 + ", x)").toString();
-          resultadoDiv.innerHTML += `<p class="mt-4"><strong>Resultado (equação 2):</strong> ${steps2}</p>`;
-          resultadoDiv.innerHTML += `<pre class="bg-gray-100 p-2 rounded">${Algebrite.run("show(" + eq2 + ")")}</pre>`;
-        }
+        const lhs1 = expr1.args[0];
+        const rhs1 = expr1.args[1];
+        const lhs2 = expr2.args[0];
+        const rhs2 = expr2.args[1];
 
-        // gráfico para equação 1
-        let expr = eq1.split("=")[0]; // pega só o lado esquerdo
-        let f = math.compile(expr);
-        const xValues = math.range(-10, 10, 0.1).toArray();
-        const yValues = xValues.map(x => f.evaluate({ x }));
+        const eq = math.simplify(`(${lhs1.toString()}) - (${rhs1.toString()}) = (${lhs2.toString()}) - (${rhs2.toString()})`);
+        const solved = math.solve(eq.toString(), 'x');
+        const x = solved[0];
 
-        if (window.grafico) {
-          window.grafico.destroy();
-        }
+        const y = math.evaluate(rhs1.toString(), { x });
+
+        resultadoDiv.innerHTML += `<p><strong>Ponto de intersecção:</strong> (${x}, ${y})</p>`;
+
+        const xValues = math.range(x - 5, x + 5, 0.1).toArray();
+        const yValues1 = xValues.map(val => math.evaluate(rhs1.toString(), { x: val }));
+        const yValues2 = xValues.map(val => math.evaluate(rhs2.toString(), { x: val }));
 
         window.grafico = new Chart(ctx, {
           type: "line",
           data: {
             labels: xValues,
-            datasets: [{
-              label: `y = ${expr}`,
-              data: yValues,
-              borderColor: "rgba(54, 162, 235, 1)",
-              fill: false,
-            }],
+            datasets: [
+              {
+                label: eq1,
+                data: yValues1,
+                borderColor: "#3b82f6",
+                fill: false,
+              },
+              {
+                label: eq2,
+                data: yValues2,
+                borderColor: "#ef4444",
+                fill: false,
+              },
+            ],
           },
           options: {
             responsive: true,
             scales: {
-              x: {
-                title: { display: true, text: "x" }
-              },
-              y: {
-                title: { display: true, text: "y" }
-              }
-            }
-          }
+              x: { title: { display: true, text: "x" } },
+              y: { title: { display: true, text: "y" } },
+            },
+          },
         });
 
       } catch (error) {

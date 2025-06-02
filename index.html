@@ -1,161 +1,217 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Interseção de Duas Retas no Plano</title>
-  <script src="https://cdn.jsdelivr.net/npm/algebrite"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Interseção de Retas no Plano</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/algebrite"></script>
   <style>
     body {
       margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f4f4f9;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(to right, #f5f7fa, #c3cfe2);
+      padding: 20px;
       color: #333;
     }
+
     header {
-      background: linear-gradient(to right, #4e54c8, #8f94fb);
-      color: white;
-      padding: 40px;
       text-align: center;
+      padding: 20px 0;
     }
+
     header h1 {
-      margin: 0;
-      font-size: 3em;
+      font-size: 2.5em;
+      background: linear-gradient(90deg, #0077ff, #00ff99);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
+
     section {
-      padding: 40px;
       max-width: 900px;
       margin: auto;
-    }
-    section h2 {
-      color: #4e54c8;
-    }
-    section p, section li {
-      font-size: 1.1em;
-      line-height: 1.6em;
-    }
-    .highlight {
-      background: #e0e0ff;
-      padding: 10px;
-      border-left: 5px solid #4e54c8;
-      margin-bottom: 20px;
-    }
-    .calculadora {
       background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      margin-top: 40px;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
     }
-    .calculadora input {
-      padding: 10px;
-      width: 100%;
-      margin-bottom: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    .calculadora button {
-      background: #4e54c8;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .resultado {
+
+    h2 {
+      font-size: 1.5em;
       margin-top: 20px;
     }
-    footer {
-      background: #ddd;
-      padding: 20px;
-      text-align: center;
-      margin-top: 50px;
+
+    .input-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
+
+    input {
+      padding: 10px;
+      font-size: 1em;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      background: #4a00e0;
+      color: white;
+      padding: 10px 20px;
+      font-size: 1em;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #8e2de2;
+    }
+
+    .output {
+      margin-top: 20px;
+      font-size: 1.1em;
+      white-space: pre-wrap;
+      background: #f0f0f0;
+      padding: 15px;
+      border-radius: 10px;
+    }
+
+    canvas {
+      margin-top: 20px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 10px;
+      margin-top: 50px;
+      font-size: 0.9em;
+      color: #555;
+    }
+
   </style>
 </head>
 <body>
-  <header>
-    <h1>Interseção de Duas Retas no Plano</h1>
-  </header>
 
-  <section>
-    <h2>🔍 O que é a Interseção de Retas?</h2>
-    <div class="highlight">
-      A interseção de duas retas no plano cartesiano é o ponto em que elas se cruzam, ou seja, o ponto comum a ambas.
-    </div>
-    <h2>📚 Como encontrar esse ponto?</h2>
-    <ul>
-      <li>Escreva as duas equações das retas (do tipo y = mx + b).</li>
-      <li>Iguale as equações para encontrar o valor de x.</li>
-      <li>Substitua o x encontrado em uma das equações para descobrir o valor de y.</li>
-    </ul>
-    <p>Esse ponto (x, y) é a solução do sistema formado pelas duas equações.</p>
-  </section>
+<header>
+  <h1>Interseção de Duas Retas no Plano</h1>
+</header>
 
-  <section class="calculadora">
-    <h2>🧮 Calculadora de Equações com Gráfico</h2>
+<section>
+  <p>A interseção de duas retas é o ponto onde elas se cruzam em um plano. Esse ponto é a solução comum para os dois sistemas de equações que representam essas retas. Quando temos equações no formato <code>y = mx + b</code>, podemos encontrar o ponto de interseção igualando as duas expressões de y, resolvendo a equação resultante para x e substituindo esse valor em uma das equações para encontrar y.</p>
+  
+  <h2>Exemplo:</h2>
+  <p>Considere as equações:</p>
+  <ul>
+    <li>y = 2x + 3</li>
+    <li>y = -x + 1</li>
+  </ul>
+  <p>Igualamos as duas expressões:</p>
+  <code>2x + 3 = -x + 1</code>
+  <p>Resolvendo:</p>
+  <code>3x = -2 → x = -2/3</code>
+  <p>Substituímos x em qualquer das equações:</p>
+  <code>y = 2(-2/3) + 3 = -4/3 + 3 = 5/3</code>
+  <p>Logo, o ponto de interseção é <strong>(-2/3, 5/3)</strong>.</p>
+</section>
+
+<section>
+  <h2>📊 Calculadora de Equações com Gráfico</h2>
+  <div class="input-container">
     <input type="text" id="eq1" placeholder="Digite a equação 1 (ex: y = 2x + 3)">
     <input type="text" id="eq2" placeholder="Digite a equação 2 (ex: y = -x + 1)">
     <button onclick="calcular()">Calcular</button>
-    <div class="resultado" id="resultado"></div>
-    <canvas id="grafico" width="400" height="200"></canvas>
-  </section>
+  </div>
+  <div class="output" id="saida"></div>
+  <canvas id="grafico" width="600" height="400"></canvas>
+</section>
 
-  <footer>
-    Professor: __________________ | Escola: __________________ | Data: ____/____/____
-  </footer>
+<footer>
+  Nome do Professor: ___________________ <br>
+  Escola: _____________________________ <br>
+  DXX: ___________
+</footer>
 
-  <script>
-    function calcular() {
-      const eq1 = document.getElementById("eq1").value;
-      const eq2 = document.getElementById("eq2").value;
-      const res = document.getElementById("resultado");
+<script>
+  function calcular() {
+    const eq1 = document.getElementById('eq1').value.trim();
+    const eq2 = document.getElementById('eq2').value.trim();
+    const saida = document.getElementById('saida');
 
-      try {
-        const expr1 = eq1.replace("y", "");
-        const expr2 = eq2.replace("y", "");
+    try {
+      const eq1Right = eq1.split('=')[1];
+      const eq2Right = eq2.split('=')[1];
 
-        const solveX = Algebrite.run("roots(" + expr1 + " - (" + expr2 + "))");
-        const x = JSON.parse(Algebrite.run("evalf(" + solveX + ")")).dat[0];
-        const y = JSON.parse(Algebrite.run("evalf(" + expr1.replace("x", `(${x})`) + ")")).dat[0];
+      // Igualando
+      const igualadas = Algebrite.run(`${eq1Right} - (${eq2Right})`);
+      const xSol = Algebrite.run(`roots(${igualadas})`);
+      const x = Algebrite.eval(xSol).toString().replace(/[^\d\-\/.]/g, '');
+      const y = Algebrite.run(eq1Right.replace(/x/g, `(${x})`));
+      const ponto = `Ponto de interseção: (x = ${x}, y = ${y})`;
 
-        res.innerHTML = `<p><strong>Interseção:</strong> x = ${x}, y = ${y}</p>`;
+      saida.innerText = `Resolvendo:\n${eq1Right} = ${eq2Right}\n⇒ ${igualadas} = 0\n⇒ x = ${x}\nSubstituindo na equação 1:\ny = ${y}\n\n${ponto}`;
 
-        // gráfico
-        const ctx = document.getElementById('grafico').getContext('2d');
-        const labels = [];
-        const data1 = [], data2 = [];
-        for (let i = -10; i <= 10; i++) {
-          labels.push(i);
-          data1.push(eval(expr1.replace(/x/g, `(${i})`)));
-          data2.push(eval(expr2.replace(/x/g, `(${i})`)));
-        }
-
-        new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: labels,
-            datasets: [
-              { label: 'Equação 1', data: data1, borderColor: 'blue', fill: false },
-              { label: 'Equação 2', data: data2, borderColor: 'red', fill: false }
-            ]
-          },
-          options: {
-            responsive: true,
-            scales: {
-              x: { title: { display: true, text: 'x' } },
-              y: { title: { display: true, text: 'y' } }
-            }
-          }
-        });
-
-      } catch (e) {
-        res.innerHTML = '<p style="color:red">Erro ao calcular: ' + e.message + '</p>';
-      }
+      desenharGrafico(eq1Right, eq2Right, x, y);
+    } catch (e) {
+      saida.innerHTML = `<span style="color: red;">Erro ao calcular: ${e.message}</span>`;
     }
-  </script>
+  }
+
+  function desenharGrafico(expr1, expr2, xInt, yInt) {
+    const xVals = [], y1 = [], y2 = [];
+    for (let x = -10; x <= 10; x += 0.5) {
+      xVals.push(x);
+      y1.push(eval(Algebrite.run(expr1.replace(/x/g, `(${x})`)).toString()));
+      y2.push(eval(Algebrite.run(expr2.replace(/x/g, `(${x})`)).toString()));
+    }
+
+    const ctx = document.getElementById('grafico').getContext('2d');
+    if (window.chart) window.chart.destroy();
+    window.chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: xVals,
+        datasets: [
+          {
+            label: 'Equação 1',
+            data: y1,
+            borderColor: 'blue',
+            fill: false,
+          },
+          {
+            label: 'Equação 2',
+            data: y2,
+            borderColor: 'green',
+            fill: false,
+          },
+          {
+            label: 'Interseção',
+            data: xVals.map((x) => null).fill(null),
+            pointRadius: 6,
+            pointBackgroundColor: 'red',
+            showLine: false
+          }
+        ]
+      },
+      options: {
+        plugins: {
+          legend: { position: 'bottom' }
+        },
+        scales: {
+          x: { title: { display: true, text: 'x' } },
+          y: { title: { display: true, text: 'y' } }
+        }
+      }
+    });
+
+    // Adiciona ponto vermelho manualmente
+    window.chart.data.datasets[2].data = xVals.map(x => (x == parseFloat(xInt) ? parseFloat(yInt) : null));
+    window.chart.update();
+  }
+</script>
+
 </body>
 </html>
-
-
